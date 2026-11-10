@@ -4,7 +4,12 @@ set -eu
 
 install() {
   printf '%s\n' '::bench::install_start'
-  python -m pip install --disable-pip-version-check --require-hashes -r requirements.txt
+  # Railpack sets VIRTUAL_ENV and copies that venv into the image, but only its default install step creates it.
+  # Render and the Dockerfiles have the venv already, so this is a no-op there.
+  if [ -n "${VIRTUAL_ENV:-}" ] && [ ! -x "$VIRTUAL_ENV/bin/python" ]; then
+    python -m venv "$VIRTUAL_ENV"
+  fi
+  "${VIRTUAL_ENV:+$VIRTUAL_ENV/bin/}python" -m pip install --disable-pip-version-check --require-hashes -r requirements.txt
   printf '%s\n' '::bench::install_done'
 }
 
