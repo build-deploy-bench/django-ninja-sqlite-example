@@ -1,0 +1,36 @@
+# Vercel Container Runtime image. Vercel detects this name eagerly; Render, Railway and Fly ignore it.
+# Keep Dockerfile.fly and Dockerfile.vercel identical below this line, so both providers do the same build work.
+FROM python:3.12.16-slim-bookworm AS build
+WORKDIR /app
+# The venv is copied whole into the runtime stage. PATH puts its python and pip first for bench/build.sh.
+RUN python -m venv /opt/venv
+ENV PATH=/opt/venv/bin:$PATH
+
+# Install and build are separate RUN steps so the ::bench:: markers and BuildKit step times stay separable.
+# The lockfile is copied first so a warm layer cache can skip the install step.
+COPY requirements.txt ./
+COPY bench/build.sh bench/build.sh
+RUN sh ./bench/build.sh install
+
+# Copy only the app sources. A local checkout can have a host venv or a db.sqlite3 that must not reach the image.
+COPY manage.py ./
+COPY apps apps
+COPY config config
+COPY helpers helpers
+COPY bench/start.sh bench/start.sh
+# The provider passes the commit as a build arg (Vercel: VERCEL_GIT_COMMIT_SHA; Fly: the harness sets
+# BENCH_COMMIT). Declared after the install step, so a new commit does not invalidate the install layer.
+ARG BENCH_COMMIT
+ARG VERCEL_GIT_COMMIT_SHA
+RUN sh ./bench/build.sh build
+
+FROM python:3.12.16-slim-bookworm
+ENV PATH=/opt/venv/bin:$PATH \
+    PYTHONUNBUFFERED=1 \
+    PORT=80
+WORKDIR /app
+COPY --from=build /opt/venv /opt/venv
+COPY --from=build /app /app
+EXPOSE 80
+# Same start command as Render and Railway, so app boot time is comparable.
+CMD ["sh", "./bench/start.sh"]
