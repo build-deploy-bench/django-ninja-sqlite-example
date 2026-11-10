@@ -17,9 +17,9 @@ the unmodified upstream tree, including its three submodule gitlinks; each patch
 - Settings: `DATABASE_URL=sqlite:////abs/path` selects file SQLite with `DEBUG` off (upstream allowed SQLite
   only with `DEBUG=True`). `SECRET_KEY` comes from the environment and is required when `DEBUG` is off.
   Production runs with `DEBUG` off.
-- `GET /version` returns `{"commit": "<sha>"}`. `bench/build.sh` writes `.build-commit` from `BENCH_COMMIT`,
+- `GET /version` returns `{"commit": "<sha>", "run": "<id>"}`. `bench/build.sh` writes `.build-commit` from `BENCH_COMMIT`,
   `RENDER_GIT_COMMIT`, `RAILWAY_GIT_COMMIT_SHA`, `VERCEL_GIT_COMMIT_SHA`, then `git rev-parse HEAD`, else
-  `unknown`. The endpoint does not touch the database.
+  `unknown`. `run` is the runtime env var `BENCH_RUN_ID` (else `unknown`). The harness sets it before each deploy, so it identifies the deployment even when the commit is the same. The endpoint does not touch the database.
 - `bench/build.sh {install|build|all}` with the `::bench::install_start/done` and `::bench::build_start/done`
   markers. Install = `pip install` of the lockfile (it creates `$VIRTUAL_ENV` first if it is missing, which
   Railpack needs). Python has no build the app needs; build = `python -m compileall` of the app sources plus
