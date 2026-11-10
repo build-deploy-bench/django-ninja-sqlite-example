@@ -67,7 +67,7 @@ target/
 ## IPython Notebook
 .ipynb_checkpoints
 ## pyenv
-.python-version
+# .python-version is committed: it pins the toolchain for the benchmark.
 ## virtualenv
 .env
 venv/
@@ -93,3 +93,10 @@ db.sqlite3
 # Custom
 notes.md
 notes.txt
+
+# Benchmark build output (bench/build.sh)
+.build-commit
+
+# Provider CLI state
+.vercel
+.env*.local
