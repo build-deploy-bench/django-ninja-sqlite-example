@@ -47,9 +47,9 @@ All smoke deploys below are setup deploys, not benchmark runs.
 
 ### Render
 
-- Workspace `tea-dbmbhbg8v5cc73e4m0jg`, service `srv-dbpmohc9v7es73fc4m1g` (`bdb-django-ninja-sqlite`),
+- Workspace `tea-dbmbhbg8v5cc73e4m0jg`, service `srv-dbpn9jgn74is73cktfc0` (`bdb-django-ninja-sqlite`),
   https://bdb-django-ninja-sqlite.onrender.com
-- Native Python runtime, region `virginia`, plan `free` with build plan `starter` (same as the Node service),
+- Native Python runtime, region `virginia`, plan `starter` (paid, always on) with build plan `starter` (same as the Node service),
   1 instance. Build command `./bench/build.sh all`, start command `./bench/start.sh`, health check
   `/api/tags`, auto-deploy off. Env: `SECRET_KEY`.
 - Render reads `.python-version` (`Using Python version 3.12.16 via .../.python-version`) and installs into
@@ -57,7 +57,8 @@ All smoke deploys below are setup deploys, not benchmark runs.
 - Smoke: `dep-dbpmohk9v7es73fc4ms0` (creation deploy) of `61d99bcbed107833501c1bf346fa9b4278001b59`, live,
   `/api/tags` 200, `/version` returned that SHA, all four markers in the build log. The later commits change
   only Railpack-specific paths in the scripts (no-ops on Render).
-- The free plan spins down when idle, as for the Node service.
+- Recreated on 2026-11-10 on the Starter plan (the API cannot change a free service to a paid plan).
+  Setup deploy `dep-dbpn9jon74is73cktg9g` of `8af8ca3`: live, `/api/tags` 200, `/version` correct.
 
 ### Railway
 
