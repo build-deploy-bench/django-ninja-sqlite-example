@@ -92,7 +92,7 @@ All smoke deploys below are setup deploys, not benchmark runs.
   `61d99bcbed107833501c1bf346fa9b4278001b59`, READY, `/api/tags` 200, all four markers in the build events.
 - Open item: `/version` returned `unknown`. `vercel deploy --build-env BENCH_COMMIT=<sha>` did not reach the
   Dockerfile `ARG`, and a CLI upload has no `VERCEL_GIT_COMMIT_SHA`. Test the harness path (API deployment with
-  `gitSource`) for `VERCEL_GIT_COMMIT_SHA`, or a project-level env var.
+  `gitSource`) for `VERCEL_GIT_COMMIT_SHA`, or a project-level env var. The probe now identifies a deployment by `run` (`BENCH_RUN_ID`, set per deployment with `vercel deploy --env BENCH_RUN_ID=<id>`), so the commit is no longer needed for that.
 
 ### Fly.io
 
