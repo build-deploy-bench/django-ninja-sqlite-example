@@ -1,6 +1,14 @@
 #!/bin/sh
 # Start command for every provider, so app boot work is the same everywhere.
 set -eu
+cd "$(dirname "$0")/.."
+
+# Render and Railpack install into the repo-local .venv. Railpack puts it on PATH only with its default install
+# command, so add it here. The Docker images have /opt/venv on PATH instead.
+if [ -x .venv/bin/python ]; then
+  PATH="$PWD/.venv/bin:$PATH"
+  export PATH
+fi
 
 # The SQLite file is in /tmp, the only path that is writable on every provider. It starts empty on each new
 # instance, so the migrations run at boot, before the server opens its port.
