@@ -18,7 +18,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import path
 from ninja import NinjaAPI
 from ninja.errors import AuthorizationError, HttpError, ValidationError
@@ -77,7 +77,25 @@ api.add_router(f"/{api_prefix}", "articles.api.router")
 api.add_router(f"/{api_prefix}", "comments.api.router")
 api.add_router("/auth", "jwt_ninja.api.router")
 
+
+def _read_build_commit() -> str:
+    """Return the commit that bench/build.sh recorded at build time, or "unknown" without a build."""
+    try:
+        return (settings.BASE_DIR / ".build-commit").read_text().strip() or "unknown"
+    except FileNotFoundError:
+        return "unknown"
+
+
+BUILD_COMMIT = _read_build_commit()
+
+
+def version(request: HttpRequest) -> HttpResponse:
+    # Independent of the database, so the benchmark probe can identify the deployment before any query works.
+    return JsonResponse({"commit": BUILD_COMMIT})
+
+
 urlpatterns = [
+    path("version", version),
     path("admin/", admin.site.urls),
     path("", api.urls),
 ]
