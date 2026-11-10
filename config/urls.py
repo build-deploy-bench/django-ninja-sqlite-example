@@ -91,11 +91,14 @@ def _read_build_commit() -> str:
 BUILD_COMMIT = _read_build_commit()
 # The harness sets BENCH_RUN_ID before each deploy, and each deployment keeps the env it started with.
 RUN_ID = os.environ.get("BENCH_RUN_ID") or "unknown"
+# Railway gets no BENCH_RUN_ID: a changed variable invalidates part of its build cache. Its own deployment ID
+# identifies the deployment instead.
+DEPLOYMENT_ID = os.environ.get("RAILWAY_DEPLOYMENT_ID") or "unknown"
 
 
 def version(request: HttpRequest) -> HttpResponse:
     # Independent of the database, so the benchmark probe can identify the deployment before any query works.
-    return JsonResponse({"commit": BUILD_COMMIT, "run": RUN_ID})
+    return JsonResponse({"commit": BUILD_COMMIT, "run": RUN_ID, "deployment": DEPLOYMENT_ID})
 
 
 urlpatterns = [
