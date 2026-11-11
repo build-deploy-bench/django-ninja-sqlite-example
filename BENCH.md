@@ -24,6 +24,7 @@ the unmodified upstream tree, including its three submodule gitlinks; each patch
   markers. Install = `pip install` of the lockfile (it creates `$VIRTUAL_ENV` first if it is missing, which
   Railpack needs). Python has no build the app needs; build = `python -m compileall` of the app sources plus
   writing `.build-commit`, so the build phase is short (well under 1 s).
+- Every `::bench::` marker ends with the wall-clock time in epoch milliseconds. At runtime, `::bench::start` marks the start of the start command and `::bench::listening` marks the bound listen socket. `bench/start.sh` prints the start marker; `bench/gunicorn.conf.py` prints the listen marker.
 - `bench/start.sh`: puts a repo-local `.venv` on `PATH` if one exists, defaults
   `DATABASE_URL=sqlite:////tmp/conduit.sqlite3` and `ALLOWED_HOSTS=*`, runs `manage.py migrate`, then
   `exec gunicorn config.wsgi --bind 0.0.0.0:$PORT` (1 sync worker). The database is empty on every new

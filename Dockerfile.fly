@@ -18,6 +18,7 @@ COPY apps apps
 COPY config config
 COPY helpers helpers
 COPY bench/start.sh bench/start.sh
+COPY bench/gunicorn.conf.py bench/gunicorn.conf.py
 # The provider passes the commit as a build arg (Vercel: VERCEL_GIT_COMMIT_SHA; Fly: the harness sets
 # BENCH_COMMIT). Declared after the install step, so a new commit does not invalidate the install layer.
 ARG BENCH_COMMIT

@@ -2,24 +2,32 @@
 # Build steps for every provider. The ::bench:: markers delimit the install and build phases in the build log.
 set -eu
 
+# Each marker carries the wall-clock time in epoch milliseconds, so a parser does not depend on the time at which
+# the provider received the log line. A `date` without %N (BusyBox) falls back to whole seconds.
+mark() {
+  now="$(date +%s%3N)"
+  case "$now" in *[!0-9]*) now="$(date +%s)000" ;; esac
+  printf '::bench::%s %s\n' "$1" "$now"
+}
+
 install() {
-  printf '%s\n' '::bench::install_start'
+  mark install_start
   # Railpack sets VIRTUAL_ENV and copies that venv into the image, but only its default install step creates it.
   # Render and the Dockerfiles have the venv already, so this is a no-op there.
   if [ -n "${VIRTUAL_ENV:-}" ] && [ ! -x "$VIRTUAL_ENV/bin/python" ]; then
     python -m venv "$VIRTUAL_ENV"
   fi
   "${VIRTUAL_ENV:+$VIRTUAL_ENV/bin/}python" -m pip install --disable-pip-version-check --require-hashes -r requirements.txt
-  printf '%s\n' '::bench::install_done'
+  mark install_done
 }
 
 # Python has no compile step that the app needs. The closest equivalent is the bytecode compile of the app
 # sources, plus the commit file that /version serves.
 build() {
-  printf '%s\n' '::bench::build_start'
+  mark build_start
   python -m compileall -q apps config helpers manage.py
   write_commit
-  printf '%s\n' '::bench::build_done'
+  mark build_done
 }
 
 # The deployed commit comes from the build environment, so an old deployment keeps reporting its own commit.

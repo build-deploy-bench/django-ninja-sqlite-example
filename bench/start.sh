@@ -3,6 +3,16 @@
 set -eu
 cd "$(dirname "$0")/.."
 
+# Each marker carries the wall-clock time in epoch milliseconds, so a parser does not depend on the time at which
+# the provider received the log line. A `date` without %N (BusyBox) falls back to whole seconds.
+mark() {
+  now="$(date +%s%3N)"
+  case "$now" in *[!0-9]*) now="$(date +%s)000" ;; esac
+  printf '::bench::%s %s\n' "$1" "$now"
+}
+
+mark start
+
 # Render and Railpack install into the repo-local .venv. Railpack puts it on PATH only with its default install
 # command, so add it here. The Docker images have /opt/venv on PATH instead.
 if [ -x .venv/bin/python ]; then
@@ -17,4 +27,4 @@ export DATABASE_URL="${DATABASE_URL:-sqlite:////tmp/conduit.sqlite3}"
 export ALLOWED_HOSTS="${ALLOWED_HOSTS:-*}"
 
 python manage.py migrate --noinput
-exec gunicorn config.wsgi --bind "0.0.0.0:${PORT:-8000}" --access-logfile -
+exec gunicorn config.wsgi --config bench/gunicorn.conf.py --bind "0.0.0.0:${PORT:-8000}" --access-logfile -
