@@ -98,7 +98,7 @@ All smoke deploys below are setup deploys, not benchmark runs.
 ### Fly.io
 
 - Org `personal`, app `bdb-django-ninja-sqlite`, https://bdb-django-ninja-sqlite.fly.dev, region `iad`,
-  1 Machine (`874751db9e0078`), `shared-cpu-1x` 512 MB, always on. Secret: `SECRET_KEY`.
+  1 Machine (`874751db9e0078`), `shared-cpu-1x` with 1 GB (the `fly launch` default), always on. Secret: `SECRET_KEY`.
 - Deploy: `flyctl deploy --config fly.toml --app <app> --ha=false --build-arg BENCH_COMMIT=<full sha>` from a
   clean `git archive` of the commit. The harness must pass `BENCH_COMMIT`, or `/version` returns `unknown`.
 - Smoke: release v1 of `f74391b51f1553ebf5e5fdc6e8a85746059a803a`, `/api/tags` 200, `/version` returned that
