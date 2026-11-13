@@ -1,1 +1,1 @@
-BENCH_TOUCH = "2026-11-12-full-render-python-r2-000511"
+BENCH_TOUCH = "2026-11-12-full-render-python-r3-000648"
