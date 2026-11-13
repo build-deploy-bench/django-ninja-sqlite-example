@@ -1,1 +1,1 @@
-BENCH_TOUCH = "2026-11-12-full-railway-python-r2-000034"
+BENCH_TOUCH = "2026-11-12-full-vercel-python-r3-000101"
