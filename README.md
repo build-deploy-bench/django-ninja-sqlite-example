@@ -1,3 +1,6 @@
+> [!WARNING]
+> **Benchmark fixture: do not use.** This repository is a copy of [c4ffein/realworld-django-ninja](https://github.com/c4ffein/realworld-django-ninja). We use it only as a test workload to measure build and deploy times on hosting platforms. It has benchmark patches (see [`BENCH.md`](BENCH.md)), gets no upstream fixes, and is not maintained. To use or contribute to the project, go to [c4ffein/realworld-django-ninja](https://github.com/c4ffein/realworld-django-ninja).
+
 # ![RealWorld Example App](logo.png)
 
 > ### Django Ninja + Postgres codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/realworld-apps/realworld) spec and API.

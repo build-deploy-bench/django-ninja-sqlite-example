@@ -21,10 +21,15 @@ sys.path.insert(0, str(BASE_DIR / "apps"))  # Also allow direct loading of the c
 # SECURITY WARNING: Unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-2jr-1j1%i(%pqej_8_ujp9l2n1vl%^i9y390o^n&nj_(z8!+ke"
+_INSECURE_DEV_SECRET_KEY = "django-insecure-2jr-1j1%i(%pqej_8_ujp9l2n1vl%^i9y390o^n&nj_(z8!+ke"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = str(getenv("DEBUG", False)).lower() == "true"
 ALLOWED_HOSTS = ["*"] if DEBUG else (lambda s: s.split(";") if s else [])(getenv("ALLOWED_HOSTS", ""))
+# The development key stays available for DEBUG runs and tests. Production must set SECRET_KEY,
+# because it signs sessions and the JWT tokens.
+SECRET_KEY = getenv("SECRET_KEY") or (_INSECURE_DEV_SECRET_KEY if DEBUG else "")
+if not SECRET_KEY:
+    raise SystemExit("SECRET_KEY must be set when DEBUG is off")
 CORS_ORIGIN_ALLOW_ALL = True
 
 
@@ -85,7 +90,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 # The parsed format follows postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
 DATABASE_URL = getenv("DATABASE_URL")
-if DATABASE_URL and DATABASE_URL.startswith((":memory:", "file:")):
+if DATABASE_URL and DATABASE_URL.startswith("sqlite:///"):
+    # File-based SQLite outside DEBUG, e.g. sqlite:////tmp/conduit.sqlite3 for an absolute path.
+    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": DATABASE_URL[len("sqlite:///") :]}}
+elif DATABASE_URL and DATABASE_URL.startswith((":memory:", "file:")):
     if not DEBUG:
         raise RuntimeError("In-memory SQLite should only be used with DEBUG=True")
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": DATABASE_URL}}
@@ -107,6 +115,7 @@ else:
     raise SystemExit(
         "You should set-up at least one of:\n"
         "- DATABASE_URL to use PostgreSQL - postgresql://[user[:password]@][netloc][:port][/dbname]\n"
+        "- DATABASE_URL=sqlite:////absolute/path.sqlite3 for file-based SQLite\n"
         "- DATABASE_URL=':memory:' for in-memory SQLite (DEBUG only)\n"
         "- DEBUG to use file-based SQLite"
     )

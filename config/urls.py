@@ -15,10 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+import os
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import path
 from ninja import NinjaAPI
 from ninja.errors import AuthorizationError, HttpError, ValidationError
@@ -77,7 +79,30 @@ api.add_router(f"/{api_prefix}", "articles.api.router")
 api.add_router(f"/{api_prefix}", "comments.api.router")
 api.add_router("/auth", "jwt_ninja.api.router")
 
+
+def _read_build_commit() -> str:
+    """Return the commit that bench/build.sh recorded at build time, or "unknown" without a build."""
+    try:
+        return (settings.BASE_DIR / ".build-commit").read_text().strip() or "unknown"
+    except FileNotFoundError:
+        return "unknown"
+
+
+BUILD_COMMIT = _read_build_commit()
+# The harness sets BENCH_RUN_ID before each deploy, and each deployment keeps the env it started with.
+RUN_ID = os.environ.get("BENCH_RUN_ID") or "unknown"
+# Railway gets no BENCH_RUN_ID: a changed variable invalidates part of its build cache. Its own deployment ID
+# identifies the deployment instead.
+DEPLOYMENT_ID = os.environ.get("RAILWAY_DEPLOYMENT_ID") or "unknown"
+
+
+def version(request: HttpRequest) -> HttpResponse:
+    # Independent of the database, so the benchmark probe can identify the deployment before any query works.
+    return JsonResponse({"commit": BUILD_COMMIT, "run": RUN_ID, "deployment": DEPLOYMENT_ID})
+
+
 urlpatterns = [
+    path("version", version),
     path("admin/", admin.site.urls),
     path("", api.urls),
 ]
