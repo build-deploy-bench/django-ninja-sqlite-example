@@ -1,1 +1,1 @@
-BENCH_TOUCH = "2026-11-27-gh14-render-python-r1-062745"
+BENCH_TOUCH = "2026-11-27-gh14-render-python-r2-062858"
