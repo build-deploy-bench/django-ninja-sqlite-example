@@ -1,1 +1,1 @@
-BENCH_TOUCH = "2026-11-27-gh14-vercel-python-r2-062622"
+BENCH_TOUCH = "2026-11-27-gh14-vercel-python-r3-062708"
